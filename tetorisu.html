@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>修正版テトリス</title>
+    <title>テトリス</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -176,10 +176,16 @@
         #pause-btn {
             background-color: #c0a0a0;
         }
+        
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
-    <h1>修正版テトリス</h1>
+    <h1>テトリス</h1>
     
     <div id="game-container">
         <div id="board-and-next">
@@ -191,11 +197,17 @@
         </div>
         
         <div id="score-panel">
-            <div style="display: flex; justify-content: space-around;">
+            <div class="score-row">
                 <div>
                     <h3 style="margin:2px 0;font-size:0.8rem;">スコア</h3>
                     <p id="score" style="margin:2px 0;">0</p>
                 </div>
+                <div>
+                    <h3 style="margin:2px 0;font-size:0.8rem;">最高</h3>
+                    <p id="high-score" style="margin:2px 0;">0</p>
+                </div>
+            </div>
+            <div class="score-row">
                 <div>
                     <h3 style="margin:2px 0;font-size:0.8rem;">レベル</h3>
                     <p id="level" style="margin:2px 0;">1</p>
@@ -232,6 +244,7 @@
         
         // スコア表示要素
         const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('high-score');
         const levelElement = document.getElementById('level');
         const linesElement = document.getElementById('lines');
         
@@ -265,6 +278,7 @@
         let gameOver = false;
         let paused = false;
         let score = 0;
+        let highScore = localStorage.getItem('tetrisHighScore') || 0;
         let level = 1;
         let lines = 0;
         let dropCounter = 0;
@@ -273,6 +287,9 @@
         let animationId = null;
         let currentPiece = null;
         let nextPiece = null;
+        
+        // 最高スコア表示を更新
+        highScoreElement.textContent = highScore;
         
         // ボードの初期化
         function createBoard() {
@@ -418,6 +435,15 @@
                 const linePoints = [0, 40, 100, 300, 1200];
                 score += linePoints[linesCleared] * level;
                 lines += linesCleared;
+                
+                // 最高スコア更新
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreElement.textContent = highScore;
+                    localStorage.setItem('tetrisHighScore', highScore);
+                }
+                
+                // 10行消すごとにレベルアップ
                 level = Math.floor(lines / 10) + 1;
                 dropInterval = 1000 - (level - 1) * 100;
                 if (dropInterval < 100) dropInterval = 100;
@@ -458,7 +484,7 @@
                         if (collide()) {
                             gameOver = true;
                             cancelAnimationFrame(animationId);
-                            alert(`ゲームオーバー！スコア: ${score}`);
+                            alert(`ゲームオーバー！スコア: ${score}\n最高スコア: ${highScore}`);
                         }
                     }
                     dropCounter = 0;
