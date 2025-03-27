@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>落ち着いた色のテトリス</title>
+    <title>修正版テトリス</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -44,7 +44,6 @@
             position: relative;
         }
         
-        /* 背景グリッド */
         #tetris-board::before {
             content: "";
             position: absolute;
@@ -68,7 +67,6 @@
             position: relative;
         }
         
-        /* 次のブロックの背景グリッド */
         #next-piece::before {
             content: "";
             position: absolute;
@@ -181,7 +179,7 @@
     </style>
 </head>
 <body>
-    <h1>クラシックテトリス</h1>
+    <h1>修正版テトリス</h1>
     
     <div id="game-container">
         <div id="board-and-next">
@@ -251,15 +249,15 @@
         const BLOCK_SIZE = canvas.width / COLS;
         const EMPTY = 'transparent';
         
-        // 落ち着いた色のテトリミノ
+        // テトリミノの形状と色
         const PIECES = [
-            { shape: [[1, 1, 1, 1]], color: '#6bb6ff' },    // I (水色)
-            { shape: [[1, 1, 1], [0, 1, 0]], color: '#b56bff' },  // T (薄紫)
-            { shape: [[1, 1, 1], [1, 0, 0]], color: '#ffb56b' },   // L (薄オレンジ)
-            { shape: [[1, 1, 1], [0, 0, 1]], color: '#6b8fff' },    // J (青)
-            { shape: [[1, 1], [1, 1]], color: '#ffff6b' },         // O (薄黄)
-            { shape: [[0, 1, 1], [1, 1, 0]], color: '#6bff8f' },    // S (薄緑)
-            { shape: [[1, 1, 0], [0, 1, 1]], color: '#ff6b6b' }       // Z (薄赤)
+            { shape: [[1, 1, 1, 1]], color: '#6bb6ff' },    // I
+            { shape: [[1, 1, 1], [0, 1, 0]], color: '#b56bff' },  // T
+            { shape: [[1, 1, 1], [1, 0, 0]], color: '#ffb56b' },   // L
+            { shape: [[1, 1, 1], [0, 0, 1]], color: '#6b8fff' },    // J
+            { shape: [[1, 1], [1, 1]], color: '#ffff6b' },         // O
+            { shape: [[0, 1, 1], [1, 1, 0]], color: '#6bff8f' },    // S
+            { shape: [[1, 1, 0], [0, 1, 1]], color: '#ff6b6b' }       // Z
         ];
         
         // ゲーム状態
@@ -289,7 +287,6 @@
             piece.shape.forEach((row, y) => {
                 row.forEach((value, x) => {
                     if (value) {
-                        // ブロック本体
                         context.fillStyle = piece.color;
                         context.fillRect(
                             (offsetX + x) * BLOCK_SIZE,
@@ -298,7 +295,6 @@
                             BLOCK_SIZE
                         );
                         
-                        // ブロックのグリッド線
                         context.strokeStyle = 'rgba(0, 0, 0, 0.3)';
                         context.lineWidth = 1;
                         context.strokeRect(
@@ -308,7 +304,6 @@
                             BLOCK_SIZE
                         );
                         
-                        // ブロックのハイライト
                         context.strokeStyle = 'rgba(255, 255, 255, 0.2)';
                         context.lineWidth = 1;
                         context.beginPath();
@@ -323,14 +318,11 @@
         }
         
         function drawBoard() {
-            // 背景はCSSで描画されるのでクリアのみ
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 固定されたブロックを描画
             board.forEach((row, y) => {
                 row.forEach((value, x) => {
                     if (value !== EMPTY) {
-                        // ブロック本体
                         ctx.fillStyle = value;
                         ctx.fillRect(
                             x * BLOCK_SIZE,
@@ -339,7 +331,6 @@
                             BLOCK_SIZE
                         );
                         
-                        // ブロックのグリッド線
                         ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
                         ctx.lineWidth = 1;
                         ctx.strokeRect(
@@ -349,7 +340,6 @@
                             BLOCK_SIZE
                         );
                         
-                        // ブロックのハイライト
                         ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
                         ctx.lineWidth = 1;
                         ctx.beginPath();
@@ -362,7 +352,6 @@
                 });
             });
             
-            // 現在のテトリミノを描画
             if (currentPiece) {
                 drawPiece(currentPiece, currentPiece.x, currentPiece.y, ctx);
             }
@@ -378,10 +367,226 @@
             }
         }
         
-        // 以降の関数（collide, merge, checkLines, rotate, movePiece, spawnPiece, updateなど）は
-        // 前回のコードと同じなので省略していますが、実際にはそのまま使用してください
+        function collide() {
+            for (let y = 0; y < currentPiece.shape.length; y++) {
+                for (let x = 0; x < currentPiece.shape[y].length; x++) {
+                    if (currentPiece.shape[y][x] !== 0) {
+                        const boardX = currentPiece.x + x;
+                        const boardY = currentPiece.y + y;
+                        
+                        if (
+                            boardX < 0 ||
+                            boardX >= COLS ||
+                            boardY >= ROWS ||
+                            (boardY >= 0 && board[boardY][boardX] !== EMPTY)
+                        ) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
         
-        // ...（以前のJavaScriptコードをここに続ける）...
+        function merge() {
+            currentPiece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        const boardY = currentPiece.y + y;
+                        const boardX = currentPiece.x + x;
+                        if (boardY >= 0) {
+                            board[boardY][boardX] = currentPiece.color;
+                        }
+                    }
+                });
+            });
+        }
+        
+        function checkLines() {
+            let linesCleared = 0;
+            
+            for (let y = ROWS - 1; y >= 0; y--) {
+                if (board[y].every(cell => cell !== EMPTY)) {
+                    board.splice(y, 1);
+                    board.unshift(Array(COLS).fill(EMPTY));
+                    linesCleared++;
+                    y++;
+                }
+            }
+            
+            if (linesCleared > 0) {
+                const linePoints = [0, 40, 100, 300, 1200];
+                score += linePoints[linesCleared] * level;
+                lines += linesCleared;
+                level = Math.floor(lines / 10) + 1;
+                dropInterval = 1000 - (level - 1) * 100;
+                if (dropInterval < 100) dropInterval = 100;
+                
+                scoreElement.textContent = score;
+                levelElement.textContent = level;
+                linesElement.textContent = lines;
+            }
+        }
+        
+        function rotate() {
+            const originalShape = currentPiece.shape;
+            currentPiece.shape = currentPiece.shape[0].map((_, i) =>
+                currentPiece.shape.map(row => row[i]).reverse()
+            );
+            if (collide()) currentPiece.shape = originalShape;
+        }
+        
+        function movePiece(direction) {
+            if (gameOver || paused) return;
+            
+            switch (direction) {
+                case 'left':
+                    currentPiece.x--;
+                    if (collide()) currentPiece.x++;
+                    break;
+                case 'right':
+                    currentPiece.x++;
+                    if (collide()) currentPiece.x--;
+                    break;
+                case 'down':
+                    currentPiece.y++;
+                    if (collide()) {
+                        currentPiece.y--;
+                        merge();
+                        checkLines();
+                        spawnPiece();
+                        if (collide()) {
+                            gameOver = true;
+                            cancelAnimationFrame(animationId);
+                            alert(`ゲームオーバー！スコア: ${score}`);
+                        }
+                    }
+                    dropCounter = 0;
+                    break;
+                case 'rotate':
+                    rotate();
+                    break;
+            }
+            
+            drawBoard();
+        }
+        
+        function spawnPiece() {
+            currentPiece = nextPiece || {
+                ...randomPiece(),
+                x: Math.floor(COLS / 2) - 1,
+                y: 0
+            };
+            
+            nextPiece = {
+                ...randomPiece(),
+                x: Math.floor(COLS / 2) - 1,
+                y: 0
+            };
+            
+            drawNextPiece();
+        }
+        
+        function update(time = 0) {
+            if (gameOver || paused) return;
+            
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) {
+                movePiece('down');
+            }
+            
+            drawBoard();
+            animationId = requestAnimationFrame(update);
+        }
+        
+        function startGame() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            board = createBoard();
+            score = 0;
+            level = 1;
+            lines = 0;
+            gameOver = false;
+            paused = false;
+            
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+            linesElement.textContent = lines;
+            
+            spawnPiece();
+            drawBoard();
+            drawNextPiece();
+            
+            lastTime = 0;
+            dropCounter = 0;
+            dropInterval = 1000;
+            
+            animationId = requestAnimationFrame(update);
+            
+            pauseBtn.textContent = '停止';
+        }
+        
+        function togglePause() {
+            if (gameOver) return;
+            
+            paused = !paused;
+            pauseBtn.textContent = paused ? '再開' : '停止';
+            
+            if (!paused) {
+                lastTime = 0;
+                animationId = requestAnimationFrame(update);
+            }
+        }
+        
+        // イベントリスナー
+        startBtn.addEventListener('click', startGame);
+        pauseBtn.addEventListener('click', togglePause);
+        rotateBtn.addEventListener('click', () => movePiece('rotate'));
+        leftBtn.addEventListener('click', () => movePiece('left'));
+        downBtn.addEventListener('click', () => movePiece('down'));
+        rightBtn.addEventListener('click', () => movePiece('right'));
+        
+        // タッチ操作
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }, { passive: false });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            const diffX = touch.clientX - touchStartX;
+            const diffY = touch.clientY - touchStartY;
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 10) movePiece('right');
+                else if (diffX < -10) movePiece('left');
+            } else {
+                if (diffY > 10) movePiece('down');
+                else if (diffY < -10) movePiece('rotate');
+            }
+        }, { passive: false });
+        
+        // 長押し加速
+        let holdInterval;
+        downBtn.addEventListener('touchstart', () => {
+            movePiece('down');
+            holdInterval = setInterval(() => movePiece('down'), 100);
+        });
+        
+        downBtn.addEventListener('touchend', () => {
+            clearInterval(holdInterval);
+        });
         
         // 初期表示
         drawBoard();
