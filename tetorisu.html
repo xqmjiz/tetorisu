@@ -3,12 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>テトリス</title>
+    <title>クラシックテトリス</title>
     <style>
+        :root {
+            --bg-color: #f5f1e6;  /* 優しいベージュ */
+            --board-color: #e8e0d5;  /* ライトベージュ */
+            --panel-color: #e8e0d5;  /* ライトベージュ */
+            --primary-color: #d4a373;  /* 落ち着いたオレンジ */
+            --secondary-color: #a68a64;  /* ダークオレンジ */
+            --text-color: #5c4d3c;  /* ダークブラウン */
+            --text-light: #8a7b6a;  /* ライトブラウン */
+            --accent-color: #c8b6a6;  /* アクセントカラー */
+        }
+        
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Noto Sans JP', sans-serif;
             text-align: center;
-            background-color: #f5f5f5;
+            background-color: var(--bg-color);
             margin: 0;
             padding: 10px;
             touch-action: manipulation;
@@ -16,32 +27,36 @@
             -webkit-user-select: none;
             user-select: none;
             overflow: hidden;
-            color: #555;
+            color: var(--text-color);
+            min-height: 100vh;
         }
         
         #game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
-            margin-top: 5px;
-            transform: scale(0.9);
-            transform-origin: top center;
+            gap: 12px;
+            margin-top: 10px;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         #board-and-next {
             display: flex;
             justify-content: center;
-            gap: 8px;
+            gap: 12px;
             width: 100%;
         }
         
         #tetris-board {
-            border: 2px solid #8b8b8b;
-            background-color: #2a2a2a;
+            border: 2px solid var(--secondary-color);
+            background-color: var(--board-color);
             width: 180px;
             height: 360px;
             position: relative;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         #tetris-board::before {
@@ -52,19 +67,21 @@
             right: 0;
             bottom: 0;
             background: 
-                linear-gradient(to right, #3a3a3a 1px, transparent 1px),
-                linear-gradient(to bottom, #3a3a3a 1px, transparent 1px);
+                linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
             background-size: 18px 18px;
-            opacity: 0.5;
             pointer-events: none;
+            border-radius: 4px;
         }
         
         #next-piece {
-            border: 2px solid #8b8b8b;
-            background-color: #2a2a2a;
-            width: 60px;
-            height: 60px;
+            border: 2px solid var(--secondary-color);
+            background-color: var(--board-color);
+            width: 72px;
+            height: 72px;
             position: relative;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         #next-piece::before {
@@ -75,66 +92,69 @@
             right: 0;
             bottom: 0;
             background: 
-                linear-gradient(to right, #3a3a3a 1px, transparent 1px),
-                linear-gradient(to bottom, #3a3a3a 1px, transparent 1px);
-            background-size: 15px 15px;
-            opacity: 0.5;
+                linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 18px 18px;
             pointer-events: none;
+            border-radius: 4px;
         }
         
         #score-panel {
-            background-color: #e0e0e0;
-            color: #555;
-            padding: 8px;
-            border-radius: 5px;
+            background-color: var(--panel-color);
+            color: var(--text-color);
+            padding: 12px;
+            border-radius: 8px;
             width: 100%;
-            max-width: 250px;
             box-sizing: border-box;
             font-size: 0.9rem;
-            border: 1px solid #ccc;
+            border: 1px solid var(--secondary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         h1 {
-            color: #666;
-            font-size: 1.2rem;
-            margin: 5px 0;
-            font-weight: normal;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 8px 0;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
         .controls {
-            margin-top: 8px;
-            background-color: #e0e0e0;
-            padding: 8px;
-            border-radius: 5px;
+            margin-top: 12px;
+            background-color: var(--panel-color);
+            padding: 12px;
+            border-radius: 8px;
             width: 100%;
-            max-width: 250px;
             box-sizing: border-box;
             font-size: 0.8rem;
-            border: 1px solid #ccc;
+            border: 1px solid var(--secondary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .control-buttons {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(2, 1fr);
-            gap: 5px;
-            margin-top: 8px;
-            max-width: 250px;
+            gap: 8px;
+            margin-top: 12px;
             width: 100%;
         }
         
         .control-btn {
-            padding: 12px 0;
-            font-size: 1rem;
-            background-color: #d0d0d0;
-            color: #555;
-            border: 1px solid #bbb;
-            border-radius: 5px;
+            padding: 14px 0;
+            font-size: 1.1rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--secondary-color);
+            border-radius: 8px;
             touch-action: manipulation;
+            font-weight: 500;
+            transition: all 0.1s ease;
         }
         
         .control-btn:active {
-            background-color: #c0c0c0;
+            background-color: var(--accent-color);
+            transform: scale(0.98);
         }
         
         #rotate-btn {
@@ -150,6 +170,8 @@
         #down-btn {
             grid-column: 2;
             grid-row: 2;
+            background-color: var(--primary-color);
+            color: white;
         }
         
         #right-btn {
@@ -160,61 +182,80 @@
         .game-buttons {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 10px;
+            margin-top: 12px;
         }
         
         .game-btn {
-            padding: 8px 12px;
-            background-color: #a0c0a0;
-            color: #fff;
+            padding: 10px 16px;
+            background-color: var(--primary-color);
+            color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 0.8rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.1s ease;
+        }
+        
+        .game-btn:active {
+            transform: scale(0.98);
         }
         
         #pause-btn {
-            background-color: #c0a0a0;
+            background-color: var(--secondary-color);
         }
         
         .score-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+        }
+        
+        .score-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        
+        .score-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>テトリス</h1>
+    <h1>クラシックテトリス</h1>
     
     <div id="game-container">
         <div id="board-and-next">
             <canvas id="tetris-board" width="180" height="360"></canvas>
             <div>
-                <h3 style="font-size:0.8rem;margin:2px 0;color:#666;">次</h3>
-                <canvas id="next-piece" width="60" height="60"></canvas>
+                <div class="score-label">次のブロック</div>
+                <canvas id="next-piece" width="72" height="72"></canvas>
             </div>
         </div>
         
         <div id="score-panel">
             <div class="score-row">
                 <div>
-                    <h3 style="margin:2px 0;font-size:0.8rem;">スコア</h3>
-                    <p id="score" style="margin:2px 0;">0</p>
+                    <div class="score-label">スコア</div>
+                    <div id="score" class="score-value">0</div>
                 </div>
                 <div>
-                    <h3 style="margin:2px 0;font-size:0.8rem;">最高</h3>
-                    <p id="high-score" style="margin:2px 0;">0</p>
+                    <div class="score-label">最高スコア</div>
+                    <div id="high-score" class="score-value">0</div>
                 </div>
             </div>
             <div class="score-row">
                 <div>
-                    <h3 style="margin:2px 0;font-size:0.8rem;">レベル</h3>
-                    <p id="level" style="margin:2px 0;">1</p>
+                    <div class="score-label">レベル</div>
+                    <div id="level" class="score-value">1</div>
                 </div>
                 <div>
-                    <h3 style="margin:2px 0;font-size:0.8rem;">行</h3>
-                    <p id="lines" style="margin:2px 0;">0</p>
+                    <div class="score-label">消した行</div>
+                    <div id="lines" class="score-value">0</div>
                 </div>
             </div>
         </div>
@@ -227,7 +268,7 @@
         </div>
         
         <div class="controls">
-            <p style="margin:4px 0;color:#666;">↓ボタン長押しで加速</p>
+            <div style="margin:6px 0;color:var(--text-light);font-size:0.75rem;">↓ボタン長押しで加速</div>
             <div class="game-buttons">
                 <button id="start-btn" class="game-btn">開始</button>
                 <button id="pause-btn" class="game-btn">停止</button>
@@ -262,15 +303,15 @@
         const BLOCK_SIZE = canvas.width / COLS;
         const EMPTY = 'transparent';
         
-        // テトリミノの形状と色
+        // テトリミノの形状と色 (ベージュとオレンジ系)
         const PIECES = [
-            { shape: [[1, 1, 1, 1]], color: '#6bb6ff' },    // I
-            { shape: [[1, 1, 1], [0, 1, 0]], color: '#b56bff' },  // T
-            { shape: [[1, 1, 1], [1, 0, 0]], color: '#ffb56b' },   // L
-            { shape: [[1, 1, 1], [0, 0, 1]], color: '#6b8fff' },    // J
-            { shape: [[1, 1], [1, 1]], color: '#ffff6b' },         // O
-            { shape: [[0, 1, 1], [1, 1, 0]], color: '#6bff8f' },    // S
-            { shape: [[1, 1, 0], [0, 1, 1]], color: '#ff6b6b' }       // Z
+            { shape: [[1, 1, 1, 1]], color: '#d4a373' },    // I (オレンジ)
+            { shape: [[1, 1, 1], [0, 1, 0]], color: '#bc8a5f' },  // T (ダークオレンジ)
+            { shape: [[1, 1, 1], [1, 0, 0]], color: '#e6b17e' },   // L (ライトオレンジ)
+            { shape: [[1, 1, 1], [0, 0, 1]], color: '#a68a64' },    // J (ダークベージュ)
+            { shape: [[1, 1], [1, 1]], color: '#c8b6a6' },         // O (ベージュグレー)
+            { shape: [[0, 1, 1], [1, 1, 0]], color: '#b9925e' },    // S (ゴールドブラウン)
+            { shape: [[1, 1, 0], [0, 1, 1]], color: '#d9b38c' }       // Z (ライトブラウン)
         ];
         
         // ゲーム状態
@@ -312,7 +353,7 @@
                             BLOCK_SIZE
                         );
                         
-                        context.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                        context.strokeStyle = 'rgba(0, 0, 0, 0.1)';
                         context.lineWidth = 1;
                         context.strokeRect(
                             (offsetX + x) * BLOCK_SIZE,
@@ -320,15 +361,6 @@
                             BLOCK_SIZE,
                             BLOCK_SIZE
                         );
-                        
-                        context.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                        context.lineWidth = 1;
-                        context.beginPath();
-                        context.moveTo((offsetX + x) * BLOCK_SIZE, (offsetY + y) * BLOCK_SIZE);
-                        context.lineTo((offsetX + x) * BLOCK_SIZE + BLOCK_SIZE, (offsetY + y) * BLOCK_SIZE);
-                        context.lineTo((offsetX + x) * BLOCK_SIZE + BLOCK_SIZE, (offsetY + y) * BLOCK_SIZE + 1);
-                        context.lineTo((offsetX + x) * BLOCK_SIZE, (offsetY + y) * BLOCK_SIZE + 1);
-                        context.stroke();
                     }
                 });
             });
@@ -348,7 +380,7 @@
                             BLOCK_SIZE
                         );
                         
-                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
                         ctx.lineWidth = 1;
                         ctx.strokeRect(
                             x * BLOCK_SIZE,
@@ -356,15 +388,6 @@
                             BLOCK_SIZE,
                             BLOCK_SIZE
                         );
-                        
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(x * BLOCK_SIZE, y * BLOCK_SIZE);
-                        ctx.lineTo(x * BLOCK_SIZE + BLOCK_SIZE, y * BLOCK_SIZE);
-                        ctx.lineTo(x * BLOCK_SIZE + BLOCK_SIZE, y * BLOCK_SIZE + 1);
-                        ctx.lineTo(x * BLOCK_SIZE, y * BLOCK_SIZE + 1);
-                        ctx.stroke();
                     }
                 });
             });
@@ -484,7 +507,7 @@
                         if (collide()) {
                             gameOver = true;
                             cancelAnimationFrame(animationId);
-                            alert(`ゲームオーバー！スコア: ${score}\n最高スコア: ${highScore}`);
+                            alert(`ゲームオーバー！\nスコア: ${score}\n最高スコア: ${highScore}`);
                         }
                     }
                     dropCounter = 0;
